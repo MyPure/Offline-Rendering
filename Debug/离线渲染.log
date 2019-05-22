@@ -1,0 +1,17 @@
+﻿  main.cpp
+c:\users\puresurface\documents\program\离线渲染\离线渲染\main.cpp(39): warning C4244: “=”: 从“T”转换到“unsigned char”，可能丢失数据
+          with
+          [
+              T=float
+          ]
+c:\users\puresurface\documents\program\离线渲染\离线渲染\main.cpp(40): warning C4244: “=”: 从“T”转换到“unsigned char”，可能丢失数据
+          with
+          [
+              T=float
+          ]
+c:\users\puresurface\documents\program\离线渲染\离线渲染\main.cpp(41): warning C4244: “=”: 从“T”转换到“unsigned char”，可能丢失数据
+          with
+          [
+              T=float
+          ]
+  离线渲染.vcxproj -> C:\Users\PureSurface\Documents\Program\离线渲染\Debug\离线渲染.exe
