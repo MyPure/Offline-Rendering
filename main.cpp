@@ -3,16 +3,16 @@
 
 void test_rgb();
 vec3 ObjectReflect(vec3 p0, vec3 u,bool inSphere);
-vec3 lightPos = vec3(0, 15, 0);
+vec3 lightPos = vec3(0, 18, 0);
 vector<Object> objects;
 
 int main(void) {
 	Object planeRight = Object(vec3(15, 15, 0), vec3(-1, 0, 0), vec3(0, 0, 1), 30.0f, 20.0f, vec3(17, 194, 238));
-	Object planeLeft = Object(vec3(-15, 15, 0), vec3(1, 0, 0), vec3(0, 0, 1), 30.0f, 20.0f, vec3(117, 7, 7));
+	Object planeLeft = Object(vec3(-15, 15, 0), vec3(1, 0, 0), vec3(0, 0, 1), 30.0f, 20.0f, vec3(187, 109, 116));
 	Object planeTop = Object(vec3(0, 15, 10), vec3(0, 0, -1), vec3(0, 1, 0), 30.0f, 30.0f, vec3(128, 128, 128));
 	Object planeButtom = Object(vec3(0, 15, -10), vec3(0, 0, 1), vec3(0, 1, 0), 30.0f, 30.0f, vec3(128, 128, 128));
 	Object planeForward = Object(vec3(0, 30, 0), vec3(0, -1, 0), vec3(0, 0, 1), 30.0f, 20.0f, vec3(128, 128, 128));
-	Object sphere1 = Object(vec3(-5, 20, -6), 4);
+	Object sphere1 = Object(vec3(-7, 20, -6), 4);
 	objects.push_back(sphere1);
 	objects.push_back(planeTop);
 	objects.push_back(planeButtom);
