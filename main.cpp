@@ -2,7 +2,7 @@
 #include <glm/glm/glm.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp>
 #include <glm/glm/gtc/type_ptr.hpp>
-#include <C:\Users\PureSurface\Documents\Program\ÀëÏßäÖÈ¾\ÀëÏßäÖÈ¾\plane.h>
+#include <F:\Program\Offline Rendering\Offline Rendering\Offline-Rendering\plane.h>
 void test_rgb();
 const int planeSize = 5;
 Plane planeRight = Plane(glm::vec3(15, 15, 0), glm::vec3(-1, 0, 0), glm::vec3(0, 0, 1), 30.0f, 20.0f, glm::vec3(17, 194, 238));
@@ -53,10 +53,10 @@ void test_rgb(void) {
 	fclose(fp);
 	free(rgb);
 }
-glm::vec3 reflect(glm::vec3 p0, glm::vec3 u,int number) {
-	for (int i = 0; i < planeSize; i++) {
-		if ((*(planes + i)).IsIntersect(p0, u)) {
-			
-		}
-	}
-}
+//glm::vec3 reflect(glm::vec3 p0, glm::vec3 u,int number) {
+//	for (int i = 0; i < planeSize; i++) {
+//		if ((*(planes + i)).IsIntersect(p0, u)) {
+//			
+//		}
+//	}
+//}
