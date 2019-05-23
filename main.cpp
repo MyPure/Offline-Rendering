@@ -29,50 +29,54 @@ int main(void) {
 	return 0;
 }
 void test_rgb(void) {
-	static bool first=true;
 	const int X = 800;
 	const int Z = 600;
+	const int N = 1;
+	unsigned int *total = (unsigned int*)malloc(sizeof(unsigned int)*X * Z * 3);
 	unsigned char *rgb = (unsigned char *)malloc(sizeof(unsigned char)*X * Z * 3);
-	unsigned char *p; 
+	unsigned char *p;
+	unsigned int *pt=total;
 	unsigned x, z;
-	for (int i = 0; i < 500; i++) {
-		p = rgb;
-		if (first) {
-			for (z = 0; z < Z; z++) {
-				if (z % (Z / 20) == 0)printf("%d:%%%.0f\n",i, (float)z / Z * 100);
-				for (x = 0; x < X; x++) {
-					vec3 p0 = vec3(0.0f);
-					vec3 u = vec3(-4.0f + ((float)x / X)*8.0f, 6.0f / sqrt(2), 3.0f - ((float)z / Z)*6.0f);
-					vec3 color = ObjectReflect(p0, u, -1, 0);
-					*p++ = color.r;    /* R */
-					*p++ = color.g;    /* G */
-					*p++ = color.b;    /* B */
-				}
-			}
-			first = false;
-		}
-		else {
-			for (z = 0; z < Z; z++) {
-				if (z % (Z / 20) == 0)printf("%d:%%%.0f\n", i, (float)z / Z * 100);
-				for (x = 0; x < X; x++) {
-					vec3 p0 = vec3(0.0f);
-					vec3 u = vec3(-4.0f + ((float)x / X)*8.0f, 6.0f / sqrt(2), 3.0f - ((float)z / Z)*6.0f);
-					vec3 color = ObjectReflect(p0, u, -1, 0);
-					*p++ = (*p + color.r) / 2.0;    /* R */
-					*p++ = (*p + color.g) / 2.0;    /* G */
-					*p++ = (*p + color.b) / 2.0;    /* B */
-				}
-			}
-		}
-		FILE *fp = fopen("rgb.png", "wb");
-		svpng(fp, X, Z, rgb, 0);
-		fclose(fp);
+	for (int i = 0; i < X * Z * 3; i++) {
+		*pt++ = 0;
 	}
+	for (int i = 0; i < N; i++) {
+		pt = total;
+		for (z = 0; z < Z; z++) {
+			if (z % (Z / 20) == 0)printf("%d:%%%.0f\n", i, (float)z / Z * 100);
+			for (x = 0; x < X; x++) {
+				vec3 p0 = vec3(0.0f);
+				vec3 u = vec3(-4.0f + ((float)x / X)*8.0f, 6.0f / sqrt(2), 3.0f - ((float)z / Z)*6.0f);
+				vec3 color = ObjectReflect(p0, u, -1, 0);
+				*pt += color.r;
+				pt++;
+				*pt += color.g;
+				pt++;
+				*pt += color.b;
+				pt++;
+			}
+		}
+	}
+	p = rgb;
+	pt = total;
+	for (z = 0; z < Z; z++) {
+		for (x = 0; x < X; x++) {
+			for (int i = 0; i < 3; i++) {
+				*p = *pt / N;
+				p++;
+				pt++;
+			}
+		}
+	}
+	FILE *fp = fopen("rgb.png", "wb");
+	svpng(fp, X, Z, rgb, 0);
+	fclose(fp);
 	free(rgb);
+	free(total);
 }
 vec3 ObjectReflect(vec3 p0, vec3 u, int id, int layer) {
 	vec3 p;
-	if (layer >= 5)return vec3(0.0f);
+	if (layer >= 2)return vec3(0.0f);
 	for (int i = 0; i < objects.size(); i++) {
 		if (objects[i].id == id)continue;//从当前物体发射时，跳过检测
 		if ((p = objects[i].IsIntersect(p0, u)) != vec3(0.0f)) {
@@ -83,8 +87,19 @@ vec3 ObjectReflect(vec3 p0, vec3 u, int id, int layer) {
 				return ObjectReflect(p,reflect(u,objects[i].Getn(p)), objects[i].id,layer);
 			}
 			else if (objects[i].objectType == ObjectType::plane) {
-				return //ObjectReflect(p, RandomReflect(p0, p, objects[i].Getn(p)), objects[i].id, layer + 1) * objects[i].color * (1.0f / 255);
-				max(dot(normalize(lightPos - p), objects[i].Getn(p)), 0.0f) * objects[i].color;
+				vec3 diffuse = max(dot(normalize(lightPos - p), objects[i].Getn(p)), 0.0f) * objects[i].color;
+				float ratio;
+				float l = sqrt((p - p0).x*(p - p0).x + (p - p0).y*(p - p0).y + (p - p0).z*(p - p0).z);
+				vec3 random = ObjectReflect(p, RandomReflect(p0, p, objects[i].Getn(p)), objects[i].id, layer + 1) * objects[i].color * (1.0f / 255);
+				//printf("%f\n", l);
+				if (l < 10) {
+					ratio = (10.0f - l) / 10.0f;
+					return  (ratio * random + diffuse)*0.5f;
+				}
+				else {
+					return diffuse;
+				}
+				//max(dot(normalize(lightPos - p), objects[i].Getn(p)), 0.0f) * objects[i].color;
 			}
 		}
 	}
@@ -97,9 +112,5 @@ vec3 RandomReflect(vec3 p0, vec3 p, vec3 n) {
 	x = sin(v)*cos(u);
 	y = sin(v)*sin(u);
 	z = cos(v);
-	//printf("%f %f %f %f %f\n", x, y, z, u, v);
-	vec3 s1 = p0 + vec3(x, y, z);
-	vec3 s2 = p + n;
-	vec3 s = s1 + s2;
-	return s - p;
+	return n + vec3(x, y, z);
 }
