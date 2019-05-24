@@ -2,7 +2,7 @@
 #include "object.h"
 #include "time.h"
 void test_rgb();
-vec3 ObjectReflect(vec3 p0, vec3 u, int id, int layer);
+vec3 ObjectReflect(vec3 p0, vec3 u, int id, int layer,vec3 color);
 vec3 RandomReflect(vec3 p0, vec3 p, vec3 n);
 vec3 lightPos = vec3(0, 15, 5);
 vector<Object> objects;
@@ -47,7 +47,7 @@ void test_rgb(void) {
 			for (x = 0; x < X; x++) {
 				vec3 p0 = vec3(0.0f);
 				vec3 u = vec3(-4.0f + ((float)x / X)*8.0f, 6.0f / sqrt(2), 3.0f - ((float)z / Z)*6.0f);
-				vec3 color = ObjectReflect(p0, u, -1, 0);
+				vec3 color = ObjectReflect(p0, u, -1, 0 ,vec3(0.0f));
 				*pt += color.r;
 				pt++;
 				*pt += color.g;
@@ -74,7 +74,7 @@ void test_rgb(void) {
 	free(rgb);
 	free(total);
 }
-vec3 ObjectReflect(vec3 p0, vec3 u, int id, int layer) {
+vec3 ObjectReflect(vec3 p0, vec3 u, int id, int layer,vec3 color) {
 	vec3 p;
 	if (layer >= 2)return vec3(0.0f);
 	for (int i = 0; i < objects.size(); i++) {
@@ -84,21 +84,18 @@ vec3 ObjectReflect(vec3 p0, vec3 u, int id, int layer) {
 				return 255.0f * vec3(1.0f);
 			}
 			else if (objects[i].objectType == ObjectType::sphere) {
-				return ObjectReflect(p,reflect(u,objects[i].Getn(p)), objects[i].id,layer);
+				return ObjectReflect(p,reflect(u,objects[i].Getn(p)), objects[i].id,layer,color);
 			}
 			else if (objects[i].objectType == ObjectType::plane) {
-				vec3 diffuse = max(dot(normalize(lightPos - p), objects[i].Getn(p)), 0.0f) * objects[i].color;
-				float ratio;
-				float l = sqrt((p - p0).x*(p - p0).x + (p - p0).y*(p - p0).y + (p - p0).z*(p - p0).z);
-				vec3 random = ObjectReflect(p, RandomReflect(p0, p, objects[i].Getn(p)), objects[i].id, layer + 1) * objects[i].color * (1.0f / 255);
-				//printf("%f\n", l);
-				if (l < 10) {
-					ratio = (10.0f - l) / 10.0f;
-					return  (ratio * random + diffuse)*0.5f;
+				//vec3 diffuse = max(dot(normalize(lightPos - p), objects[i].Getn(p)), 0.0f) * objects[i].color;
+				vec3 random = ObjectReflect(p, RandomReflect(p0, p, objects[i].Getn(p)), objects[i].id, layer + 1, objects[i].color);
+				if (layer != 0) {
+					float ratio;
+					float l = sqrt((p - p0).x * (p - p0).x + (p - p0).y * (p - p0).y + (p - p0).z * (p - p0).z);
+					ratio = max((10.0f - l) / 10.0f, 0.2f);
+					return ratio * random * color * (1.0f/255.0f) + (1 - ratio) * color;
 				}
-				else {
-					return diffuse;
-				}
+				return random;
 				//max(dot(normalize(lightPos - p), objects[i].Getn(p)), 0.0f) * objects[i].color;
 			}
 		}
